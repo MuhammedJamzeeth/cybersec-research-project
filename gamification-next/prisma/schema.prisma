@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGO_URI")
+}
+
+model User {
+  id              String       @id @default(auto()) @map("_id") @db.ObjectId
+  username        String       @unique
+  email           String       @unique
+  password        String
+  gender          String?      // Male or Female
+  education_level String?      // O/L, A/L, HND, or Degree
+  proficiency     String?      // School or High Education
+  organization    String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  assessments     Assessment[]
+  gameResults     GameResult[]
+
+  @@map("users")
+}
+
+model Assessment {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  categoryId  String
+  slug        String
+  answers     Int[]
+  score       Int
+  completedAt DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, slug])
+  @@map("assessments")
+}
+
+model GameResult {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
+  category    String
+  gameSlug    String
+  preScore    Int
+  gameScore   Int
+  postScore   Int
+  improvement Int
+  completedAt DateTime
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, category])
+  @@map("game_results")
+}
