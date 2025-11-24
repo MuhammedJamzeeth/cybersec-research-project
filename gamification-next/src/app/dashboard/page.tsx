@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import ImprovementDashboard from "@/components/ImprovementDashboard";
 import { 
   Trophy, 
   Target, 
@@ -277,6 +278,17 @@ export default function DashboardPage() {
       {/* Overview Tab */}
       {activeTab === "overview" && stats && (
         <div className="space-y-6">
+          {/* Improvement Charts by Category */}
+          <Card>
+            <CardHeader>
+              <CardTitle>📈 Your Learning Progress</CardTitle>
+              <CardDescription>Track your improvement across categories</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ImprovementDashboard userId={user.id} assessments={assessments} />
+            </CardContent>
+          </Card>
+
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>

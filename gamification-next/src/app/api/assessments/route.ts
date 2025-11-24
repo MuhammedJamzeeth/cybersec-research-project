@@ -32,7 +32,17 @@ export async function GET(request: NextRequest) {
 // POST: Create a new assessment
 export async function POST(request: NextRequest) {
   try {
-    const { userId, categoryId, slug, answers, score } = await request.json();
+    const { 
+      userId, 
+      categoryId, 
+      slug, 
+      answers, 
+      score,
+      percentage,
+      knowledgeLevel,
+      weakAreas,
+      mlData 
+    } = await request.json();
 
     // Validate input
     if (!userId || !categoryId || !slug || !answers || score === undefined) {
@@ -42,28 +52,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if assessment already exists for this user and category
-    const existingAssessment = await prisma.assessment.findFirst({
+    // Calculate percentage if not provided (assuming max score of 50 for 10 questions)
+    const calculatedPercentage = percentage !== undefined 
+      ? percentage 
+      : (score / 50) * 100;
+
+    // Determine knowledge level if not provided
+    const calculatedKnowledgeLevel = knowledgeLevel || 
+      (calculatedPercentage >= 80 ? 'Advanced' : 
+       calculatedPercentage >= 60 ? 'Intermediate' : 'Beginner');
+
+    // Check if this is a retake
+    const previousAssessment = await prisma.assessment.findFirst({
       where: {
         userId,
         slug,
       },
+      orderBy: { completedAt: 'desc' },
     });
 
     let assessment;
 
-    if (existingAssessment) {
-      // Update existing assessment
-      assessment = await prisma.assessment.update({
-        where: { id: existingAssessment.id },
-        data: {
-          answers,
-          score,
-          completedAt: new Date(),
-        },
-      });
-    } else {
-      // Create new assessment
+    if (previousAssessment) {
+      // This is a retake - calculate improvement
+      const improvement = calculatedPercentage - previousAssessment.percentage;
+      const attemptNumber = previousAssessment.attemptNumber + 1;
+
       assessment = await prisma.assessment.create({
         data: {
           userId,
@@ -71,12 +85,49 @@ export async function POST(request: NextRequest) {
           slug,
           answers,
           score,
+          percentage: calculatedPercentage,
+          knowledgeLevel: calculatedKnowledgeLevel,
+          weakAreas: weakAreas || [],
+          recommendedGames: [],
+          attemptNumber,
+          previousAttemptId: previousAssessment.id,
+          previousScore: previousAssessment.score,
+          improvement: Math.round(improvement * 100) / 100,
+          mlRecommendations: mlData?.recommendations || [],
+          mlAwarenessLevel: mlData?.awarenessLevel,
+          mlConfidence: mlData?.confidence,
+          detailedFeedback: mlData?.detailedFeedback || {},
+        },
+      });
+    } else {
+      // First attempt - create new assessment
+      assessment = await prisma.assessment.create({
+        data: {
+          userId,
+          categoryId,
+          slug,
+          answers,
+          score,
+          percentage: calculatedPercentage,
+          knowledgeLevel: calculatedKnowledgeLevel,
+          weakAreas: weakAreas || [],
+          recommendedGames: [],
+          attemptNumber: 1,
+          mlRecommendations: mlData?.recommendations || [],
+          mlAwarenessLevel: mlData?.awarenessLevel,
+          mlConfidence: mlData?.confidence,
+          detailedFeedback: mlData?.detailedFeedback || {},
         },
       });
     }
 
     return NextResponse.json(
-      { assessment, message: "Assessment saved successfully" },
+      { 
+        assessment, 
+        message: "Assessment saved successfully",
+        isRetake: !!previousAssessment,
+        improvement: previousAssessment ? assessment.improvement : 0,
+      },
       { status: 201 }
     );
   } catch (error) {

@@ -350,7 +350,8 @@ class ModelService:
                     'Beginner': "Low Awareness",
                     'Basic': "Low Awareness",
                     'Intermediate': "Moderate Awareness",
-                    'Advanced': "High Awareness"
+                    'Advanced': "High Awareness",
+                    'Expert': "High Awareness"  # Added mapping for perfect scores (100%)
                 }
                 awareness_level = awareness_map_str.get(prediction, "Unknown")
             else:

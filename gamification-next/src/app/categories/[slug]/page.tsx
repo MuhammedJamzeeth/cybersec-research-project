@@ -141,7 +141,23 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         setSubmitted(true);
         setHasCompleted(true);
         
-        // Also save to your MongoDB
+        // Extract weak areas from detailed feedback
+        const weakAreas = result.detailed_feedback
+          .filter((f: any) => f.score < 3) // Assuming scores < 3 indicate weak areas
+          .map((f: any) => {
+            const question = f.question_text.toLowerCase();
+            if (question.includes('location')) return 'location';
+            if (question.includes('storage') || question.includes('file')) return 'storage';
+            if (question.includes('camera')) return 'camera';
+            if (question.includes('contact')) return 'contacts';
+            if (question.includes('microphone') || question.includes('audio')) return 'microphone';
+            return 'general';
+          })
+          .filter((area: string, index: number, self: string[]) => 
+            self.indexOf(area) === index // Remove duplicates
+          );
+        
+        // Also save to your MongoDB with ML data
         await fetch("/api/assessments", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -150,7 +166,16 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             categoryId: "mobile-app-permissions",
             slug: slug,
             answers: Object.values(answers),
-            score: Math.round(result.percentage),
+            score: result.total_score,
+            percentage: result.percentage,
+            knowledgeLevel: result.overall_knowledge_level,
+            weakAreas: weakAreas,
+            mlData: {
+              recommendations: result.ml_recommendations,
+              awarenessLevel: result.ml_awareness_level,
+              confidence: result.ml_confidence,
+              detailedFeedback: result.detailed_feedback,
+            },
           }),
         });
         
@@ -173,6 +198,10 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     setScore(finalScore);
     setSubmitted(true);
 
+    // Determine knowledge level
+    const knowledgeLevel = finalScore >= 80 ? 'Advanced' : 
+                          finalScore >= 60 ? 'Intermediate' : 'Beginner';
+
     // Save to database
     if (user) {
       try {
@@ -187,6 +216,9 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             slug: slug,
             answers: Object.values(answers),
             score: finalScore,
+            percentage: finalScore,
+            knowledgeLevel: knowledgeLevel,
+            weakAreas: [],
           }),
         });
 
@@ -353,8 +385,14 @@ export default function CategoryPage({ params }: CategoryPageProps) {
                 )}
               </div>
 
-              <div className="flex justify-center">
-                <Button onClick={() => router.push("/")}>Back to Home</Button>
+              <div className="flex justify-center gap-3">
+                <Button 
+                  onClick={() => router.push(`/assessment-results?category=${slug}&score=${score}&percentage=${score}&level=${mlAwarenessLevel || (score >= 80 ? 'Advanced' : score >= 60 ? 'Intermediate' : 'Beginner')}`)}
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                >
+                  View Recommendations & Progress
+                </Button>
+                <Button variant="outline" onClick={() => router.push("/")}>Back to Home</Button>
               </div>
             </div>
           </CardContent>

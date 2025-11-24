@@ -111,6 +111,31 @@ export const appPermClient = {
   },
 
   /**
+   * Get personalized game recommendations from ML model
+   */
+  async getMLGameRecommendations(data: {
+    detailed_feedback: QuestionFeedback[];
+    user_profile: UserProfile;
+    ml_awareness_level?: string;
+    weak_areas?: string[];
+  }) {
+    const response = await fetch(`${API_URL}/api/game-recommendations`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to get recommendations' }));
+      throw new Error(error.detail || 'Failed to get recommendations');
+    }
+
+    return response.json();
+  },
+
+  /**
    * Get aggregated statistics from all assessments
    */
   async getStatistics() {

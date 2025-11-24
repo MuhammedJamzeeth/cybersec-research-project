@@ -28,16 +28,29 @@ model User {
 }
 
 model Assessment {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  userId      String   @db.ObjectId
-  categoryId  String
-  slug        String
-  answers     Int[]
-  score       Int
-  completedAt DateTime @default(now())
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId                String   @db.ObjectId
+  categoryId            String
+  slug                  String
+  answers               Int[]
+  score                 Int
+  percentage            Float
+  knowledgeLevel        String   // Beginner, Intermediate, Advanced
+  weakAreas             String[] // Categories where user scored low
+  recommendedGames      String[] // Game slugs recommended based on weak areas
+  attemptNumber         Int      @default(1)
+  previousAttemptId     String?  @db.ObjectId
+  previousScore         Int?
+  improvement           Float?   // Percentage improvement from previous attempt
+  mlRecommendations     String[] @default([]) // ML-based recommendations
+  mlAwarenessLevel      String?  // ML predicted awareness level
+  mlConfidence          Float?   // ML model confidence score
+  detailedFeedback      Json?    // Store full feedback from ML model
+  completedAt           DateTime @default(now())
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, slug])
+  @@index([userId, categoryId])
   @@map("assessments")
 }
 
