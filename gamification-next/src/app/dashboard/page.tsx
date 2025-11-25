@@ -3,15 +3,21 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import ImprovementDashboard from "@/components/ImprovementDashboard";
-import { 
-  Trophy, 
-  Target, 
-  TrendingUp, 
-  Award, 
-  Clock, 
+import {
+  Trophy,
+  Target,
+  TrendingUp,
+  Award,
+  Clock,
   CheckCircle2,
   Star,
   Zap,
@@ -21,7 +27,7 @@ import {
   Brain,
   Gamepad2,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
 } from "lucide-react";
 
 interface AssessmentResult {
@@ -29,6 +35,10 @@ interface AssessmentResult {
   categoryId: string;
   slug: string;
   score: number;
+  percentage: number;
+  knowledgeLevel: string;
+  attemptNumber: number;
+  improvement: number | null;
   answers: number[];
   completedAt: string;
   user: {
@@ -75,10 +85,14 @@ const categoryNames: Record<string, string> = {
 };
 
 const getBadgeForScore = (score: number) => {
-  if (score >= 90) return { icon: Crown, color: "text-yellow-500", label: "Master" };
-  if (score >= 80) return { icon: Medal, color: "text-purple-500", label: "Expert" };
-  if (score >= 70) return { icon: Award, color: "text-blue-500", label: "Advanced" };
-  if (score >= 60) return { icon: Star, color: "text-green-500", label: "Intermediate" };
+  if (score >= 90)
+    return { icon: Crown, color: "text-yellow-500", label: "Master" };
+  if (score >= 80)
+    return { icon: Medal, color: "text-purple-500", label: "Expert" };
+  if (score >= 70)
+    return { icon: Award, color: "text-blue-500", label: "Advanced" };
+  if (score >= 60)
+    return { icon: Star, color: "text-green-500", label: "Intermediate" };
   return { icon: Shield, color: "text-gray-500", label: "Beginner" };
 };
 
@@ -98,14 +112,16 @@ export default function DashboardPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "history" | "games" | "leaderboard">("overview");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "history" | "games" | "leaderboard"
+  >("overview");
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/login?redirect=/dashboard");
       return;
     }
-    
+
     if (user) {
       loadDashboardData();
     }
@@ -118,16 +134,27 @@ export default function DashboardPage() {
       if (assessmentsRes.ok) {
         const data = await assessmentsRes.json();
         setAssessments(data.assessments || []);
-        
+
         // Calculate stats
         const totalAssessments = data.assessments.length;
-        const totalScore = data.assessments.reduce((sum: number, a: AssessmentResult) => sum + a.score, 0);
-        const averageScore = totalAssessments > 0 ? Math.round(totalScore / totalAssessments) : 0;
-        const highestScore = totalAssessments > 0 ? Math.max(...data.assessments.map((a: AssessmentResult) => a.score)) : 0;
-        const completedCategories = new Set(data.assessments.map((a: AssessmentResult) => a.slug)).size;
+        const totalScore = data.assessments.reduce(
+          (sum: number, a: AssessmentResult) => sum + a.score,
+          0
+        );
+        const averageScore =
+          totalAssessments > 0 ? Math.round(totalScore / totalAssessments) : 0;
+        const highestScore =
+          totalAssessments > 0
+            ? Math.max(
+                ...data.assessments.map((a: AssessmentResult) => a.score)
+              )
+            : 0;
+        const completedCategories = new Set(
+          data.assessments.map((a: AssessmentResult) => a.slug)
+        ).size;
         const totalPoints = totalScore * 10; // 10 points per score percentage
         const level = getLevel(totalPoints);
-        
+
         setStats({
           totalAssessments,
           averageScore,
@@ -148,7 +175,9 @@ export default function DashboardPage() {
       }
 
       // Load game results
-      const gameResultsRes = await fetch(`/api/games/results?userId=${user?.id}`);
+      const gameResultsRes = await fetch(
+        `/api/games/results?userId=${user?.id}`
+      );
       if (gameResultsRes.ok) {
         const data = await gameResultsRes.json();
         setGameResults(data.gameResults || []);
@@ -170,7 +199,9 @@ export default function DashboardPage() {
         <div className="flex items-center justify-center">
           <div className="text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-300 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100 mx-auto mb-4"></div>
-            <p className="text-zinc-600 dark:text-zinc-400">Loading your dashboard...</p>
+            <p className="text-zinc-600 dark:text-zinc-400">
+              Loading your dashboard...
+            </p>
           </div>
         </div>
       </div>
@@ -183,13 +214,17 @@ export default function DashboardPage() {
     return "text-red-600 dark:text-red-400";
   };
 
-  const progressToNextLevel = stats ? ((stats.totalPoints % 500) / 500) * 100 : 0;
+  const progressToNextLevel = stats
+    ? ((stats.totalPoints % 500) / 500) * 100
+    : 0;
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Welcome back, {user.username}!</h1>
+        <h1 className="text-3xl font-bold mb-2">
+          Welcome back, {user.username}!
+        </h1>
         <p className="text-zinc-600 dark:text-zinc-400">
           Track your cybersecurity learning progress and compete with others
         </p>
@@ -218,7 +253,7 @@ export default function DashboardPage() {
                 <span>{Math.round(progressToNextLevel)}%</span>
               </div>
               <div className="h-3 bg-white/20 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full bg-white transition-all duration-500"
                   style={{ width: `${progressToNextLevel}%` }}
                 />
@@ -282,10 +317,15 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>📈 Your Learning Progress</CardTitle>
-              <CardDescription>Track your improvement across categories</CardDescription>
+              <CardDescription>
+                Track your improvement across categories
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ImprovementDashboard userId={user.id} assessments={assessments} />
+              <ImprovementDashboard
+                userId={user.id}
+                assessments={assessments}
+              />
             </CardContent>
           </Card>
 
@@ -293,11 +333,15 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Total Assessments</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Total Assessments
+                </CardTitle>
                 <Target className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.totalAssessments}</div>
+                <div className="text-2xl font-bold">
+                  {stats.totalAssessments}
+                </div>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
                   {stats.completedCategories}/5 categories completed
                 </p>
@@ -306,11 +350,17 @@ export default function DashboardPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Average Score
+                </CardTitle>
                 <TrendingUp className="h-4 w-4 text-zinc-600 dark:text-zinc-400" />
               </CardHeader>
               <CardContent>
-                <div className={`text-2xl font-bold ${getScoreColor(stats.averageScore)}`}>
+                <div
+                  className={`text-2xl font-bold ${getScoreColor(
+                    stats.averageScore
+                  )}`}
+                >
                   {stats.averageScore}%
                 </div>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
@@ -321,11 +371,15 @@ export default function DashboardPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Highest Score</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Highest Score
+                </CardTitle>
                 <Trophy className="h-4 w-4 text-yellow-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-yellow-600">{stats.highestScore}%</div>
+                <div className="text-2xl font-bold text-yellow-600">
+                  {stats.highestScore}%
+                </div>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
                   Personal best
                 </p>
@@ -334,11 +388,15 @@ export default function DashboardPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Current Streak
+                </CardTitle>
                 <Zap className="h-4 w-4 text-orange-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-orange-600">{stats.currentStreak}</div>
+                <div className="text-2xl font-bold text-orange-600">
+                  {stats.currentStreak}
+                </div>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1">
                   Assessments completed
                 </p>
@@ -353,7 +411,9 @@ export default function DashboardPage() {
                 <Award className="h-5 w-5" />
                 Your Achievements
               </CardTitle>
-              <CardDescription>Badges earned based on your performance</CardDescription>
+              <CardDescription>
+                Badges earned based on your performance
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -361,12 +421,19 @@ export default function DashboardPage() {
                   const badge = getBadgeForScore(assessment.score);
                   const BadgeIcon = badge.icon;
                   return (
-                    <div key={assessment.id} className="flex flex-col items-center p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900">
+                    <div
+                      key={assessment.id}
+                      className="flex flex-col items-center p-4 rounded-lg bg-zinc-50 dark:bg-zinc-900"
+                    >
                       <BadgeIcon className={`h-8 w-8 mb-2 ${badge.color}`} />
                       <p className="text-xs font-medium text-center mb-1">
                         {categoryNames[assessment.slug] || assessment.slug}
                       </p>
-                      <p className={`text-sm font-bold ${getScoreColor(assessment.score)}`}>
+                      <p
+                        className={`text-sm font-bold ${getScoreColor(
+                          assessment.score
+                        )}`}
+                      >
                         {assessment.score}%
                       </p>
                       <p className="text-xs text-zinc-600 dark:text-zinc-400">
@@ -392,7 +459,9 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Continue Learning</CardTitle>
-              <CardDescription>Keep improving your cybersecurity knowledge</CardDescription>
+              <CardDescription>
+                Keep improving your cybersecurity knowledge
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -452,12 +521,19 @@ export default function DashboardPage() {
                             {categoryNames[assessment.slug] || assessment.slug}
                           </p>
                           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                            Completed {new Date(assessment.completedAt).toLocaleDateString()}
+                            Completed{" "}
+                            {new Date(
+                              assessment.completedAt
+                            ).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className={`text-2xl font-bold ${getScoreColor(assessment.score)}`}>
+                        <p
+                          className={`text-2xl font-bold ${getScoreColor(
+                            assessment.score
+                          )}`}
+                        >
                           {assessment.score}%
                         </p>
                         <p className="text-xs text-zinc-600 dark:text-zinc-400">
@@ -472,7 +548,9 @@ export default function DashboardPage() {
               <div className="text-center py-12 text-zinc-600 dark:text-zinc-400">
                 <CheckCircle2 className="h-16 w-16 mx-auto mb-4 opacity-50" />
                 <p className="mb-2">No assessments completed yet</p>
-                <p className="text-sm mb-4">Start your cybersecurity learning journey today!</p>
+                <p className="text-sm mb-4">
+                  Start your cybersecurity learning journey today!
+                </p>
                 <Button asChild>
                   <a href="/">Take Your First Assessment</a>
                 </Button>
@@ -490,7 +568,9 @@ export default function DashboardPage() {
               <Gamepad2 className="h-5 w-5 text-purple-600" />
               Game Completion History
             </CardTitle>
-            <CardDescription>Track your learning progress through interactive games</CardDescription>
+            <CardDescription>
+              Track your learning progress through interactive games
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {gameResults.length > 0 ? (
@@ -498,13 +578,15 @@ export default function DashboardPage() {
                 {gameResults.map((game) => {
                   const prePercent = (game.preScore / 30) * 100;
                   const postPercent = (game.postScore / 30) * 100;
-                  const improvementPercent = (postPercent - prePercent).toFixed(1);
+                  const improvementPercent = (postPercent - prePercent).toFixed(
+                    1
+                  );
                   const isImproved = game.improvement > 0;
-                  const improvementColor = isImproved 
-                    ? "text-green-600 dark:text-green-400" 
-                    : game.improvement < 0 
-                      ? "text-red-600 dark:text-red-400"
-                      : "text-zinc-600 dark:text-zinc-400";
+                  const improvementColor = isImproved
+                    ? "text-green-600 dark:text-green-400"
+                    : game.improvement < 0
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-zinc-600 dark:text-zinc-400";
 
                   return (
                     <div
@@ -514,7 +596,7 @@ export default function DashboardPage() {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <h3 className="font-semibold text-lg capitalize">
-                            {game.gameSlug.replace(/-/g, ' ')}
+                            {game.gameSlug.replace(/-/g, " ")}
                           </h3>
                           <p className="text-sm text-zinc-600 dark:text-zinc-400">
                             {categoryNames[game.category] || game.category}
@@ -523,16 +605,29 @@ export default function DashboardPage() {
                             {new Date(game.completedAt).toLocaleString()}
                           </p>
                         </div>
-                        <div className={`flex items-center gap-1 font-bold ${improvementColor}`}>
-                          {isImproved ? <ArrowUp className="h-5 w-5" /> : <ArrowDown className="h-5 w-5" />}
-                          {isImproved ? '+' : ''}{improvementPercent}%
+                        <div
+                          className={`flex items-center gap-1 font-bold ${improvementColor}`}
+                        >
+                          {isImproved ? (
+                            <ArrowUp className="h-5 w-5" />
+                          ) : (
+                            <ArrowDown className="h-5 w-5" />
+                          )}
+                          {isImproved ? "+" : ""}
+                          {improvementPercent}%
                         </div>
                       </div>
 
                       <div className="grid grid-cols-3 gap-4">
                         <div className="text-center p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
-                          <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-1">Pre-Assessment</p>
-                          <p className={`text-xl font-bold ${getScoreColor((game.preScore / 30) * 100)}`}>
+                          <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-1">
+                            Pre-Assessment
+                          </p>
+                          <p
+                            className={`text-xl font-bold ${getScoreColor(
+                              (game.preScore / 30) * 100
+                            )}`}
+                          >
                             {game.preScore}/30
                           </p>
                           <p className="text-xs text-zinc-500 dark:text-zinc-500">
@@ -541,8 +636,14 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="text-center p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-                          <p className="text-xs text-purple-600 dark:text-purple-400 mb-1">Game Score</p>
-                          <p className={`text-xl font-bold ${getScoreColor(game.gameScore)}`}>
+                          <p className="text-xs text-purple-600 dark:text-purple-400 mb-1">
+                            Game Score
+                          </p>
+                          <p
+                            className={`text-xl font-bold ${getScoreColor(
+                              game.gameScore
+                            )}`}
+                          >
                             {game.gameScore}/100
                           </p>
                           <p className="text-xs text-purple-600 dark:text-purple-400">
@@ -551,8 +652,14 @@ export default function DashboardPage() {
                         </div>
 
                         <div className="text-center p-3 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
-                          <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-1">Post-Assessment</p>
-                          <p className={`text-xl font-bold ${getScoreColor((game.postScore / 30) * 100)}`}>
+                          <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-1">
+                            Post-Assessment
+                          </p>
+                          <p
+                            className={`text-xl font-bold ${getScoreColor(
+                              (game.postScore / 30) * 100
+                            )}`}
+                          >
                             {game.postScore}/30
                           </p>
                           <p className="text-xs text-zinc-500 dark:text-zinc-500">
@@ -563,9 +670,12 @@ export default function DashboardPage() {
 
                       <div className="mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-zinc-600 dark:text-zinc-400">Knowledge Improvement:</span>
+                          <span className="text-zinc-600 dark:text-zinc-400">
+                            Knowledge Improvement:
+                          </span>
                           <span className={`font-semibold ${improvementColor}`}>
-                            {isImproved ? '+' : ''}{improvementPercent} percentage points
+                            {isImproved ? "+" : ""}
+                            {improvementPercent} percentage points
                           </span>
                         </div>
                       </div>
@@ -577,7 +687,10 @@ export default function DashboardPage() {
               <div className="text-center py-12 text-zinc-600 dark:text-zinc-400">
                 <Gamepad2 className="h-16 w-16 mx-auto mb-4 opacity-50" />
                 <p className="mb-2">No games completed yet</p>
-                <p className="text-sm mb-4">Play interactive games to enhance your cybersecurity knowledge!</p>
+                <p className="text-sm mb-4">
+                  Play interactive games to enhance your cybersecurity
+                  knowledge!
+                </p>
                 <Button asChild>
                   <a href="/games">Explore Games</a>
                 </Button>
@@ -595,14 +708,20 @@ export default function DashboardPage() {
               <Trophy className="h-5 w-5 text-yellow-600" />
               Global Leaderboard
             </CardTitle>
-            <CardDescription>Top performers in cybersecurity knowledge</CardDescription>
+            <CardDescription>
+              Top performers in cybersecurity knowledge
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {leaderboard.length > 0 ? (
               <div className="space-y-2">
                 {leaderboard.map((entry, index) => {
                   const isCurrentUser = entry.username === user.username;
-                  const rankColors = ["text-yellow-600", "text-gray-400", "text-orange-600"];
+                  const rankColors = [
+                    "text-yellow-600",
+                    "text-gray-400",
+                    "text-orange-600",
+                  ];
                   return (
                     <div
                       key={index}
@@ -613,13 +732,26 @@ export default function DashboardPage() {
                       }`}
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`text-2xl font-bold ${rankColors[index] || "text-zinc-600 dark:text-zinc-400"}`}>
+                        <div
+                          className={`text-2xl font-bold ${
+                            rankColors[index] ||
+                            "text-zinc-600 dark:text-zinc-400"
+                          }`}
+                        >
                           #{entry.rank}
                         </div>
                         <div>
-                          <p className={`font-semibold ${isCurrentUser ? "text-blue-600 dark:text-blue-400" : ""}`}>
+                          <p
+                            className={`font-semibold ${
+                              isCurrentUser
+                                ? "text-blue-600 dark:text-blue-400"
+                                : ""
+                            }`}
+                          >
                             {entry.username}
-                            {isCurrentUser && <span className="ml-2 text-xs">(You)</span>}
+                            {isCurrentUser && (
+                              <span className="ml-2 text-xs">(You)</span>
+                            )}
                           </p>
                           <p className="text-sm text-zinc-600 dark:text-zinc-400">
                             {entry.assessmentCount} assessments completed
@@ -627,7 +759,9 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xl font-bold">{entry.totalScore} pts</p>
+                        <p className="text-xl font-bold">
+                          {entry.totalScore} pts
+                        </p>
                         <p className="text-sm text-zinc-600 dark:text-zinc-400">
                           Avg: {Math.round(entry.averageScore)}%
                         </p>

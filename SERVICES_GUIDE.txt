@@ -1,0 +1,275 @@
+# Cybersecurity Assessment Platform - Services Overview
+
+## Architecture
+
+This platform consists of 5 microservices + 1 frontend + 1 database:
+
+### Backend Services (Python FastAPI)
+1. **App Permission Service** - Port 8000
+2. **Phishing Detection Service** - Port 8001  
+3. **Password Security Service** - Port 8002
+4. **Social Engineering Service** - Port 8003
+5. **Device Security Service** - Port 8004
+
+### Frontend (Next.js)
+- **Gamification Frontend** - Port 3000
+
+### Database
+- **MongoDB** - Port 27017 (with replica set)
+
+## Quick Start
+
+### Option 1: Docker Compose (Recommended)
+```powershell
+# Start all services
+docker-compose up --build -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+```
+
+### Option 2: Use Startup Script
+```powershell
+.\start-services.ps1
+```
+
+### Option 3: Manual Development Mode
+
+**1. Start MongoDB:**
+```powershell
+docker-compose up -d mongodb mongo-init
+```
+
+**2. Start Backend Services (each in separate terminal):**
+```powershell
+# App Permission Service
+cd app-permission-service
+pip install -r requirements.txt
+python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+# Phishing Detection Service
+cd phishing-detection-service
+pip install -r requirements.txt
+python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8001 --reload
+
+# Password Security Service
+cd password-security-service
+pip install -r requirements.txt
+python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8002 --reload
+
+# Social Engineering Service
+cd social-engineering-service
+pip install -r requirements.txt
+python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8003 --reload
+
+# Device Security Service
+cd device-security-service
+pip install -r requirements.txt
+python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8004 --reload
+```
+
+**3. Start Frontend:**
+```powershell
+cd gamification-next
+pnpm install
+pnpm dev
+```
+
+## Service Structure
+
+Each backend service follows the same structure:
+
+```
+service-name/
+├── config/
+│   ├── __init__.py
+│   └── settings.py          # Configuration (PORT, MongoDB, etc.)
+├── src/
+│   ├── __init__.py
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── main.py         # FastAPI app
+│   │   └── models.py       # Pydantic models
+│   ├── core/
+│   │   ├── __init__.py
+│   │   └── service.py      # Business logic & ML model
+│   └── utils/
+│       └── __init__.py
+├── data/
+│   ├── answer_sheet_*.json      # Questions (empty initially)
+│   └── explanation_bank_*.json  # Explanations (empty initially)
+├── models/                       # ML models (add later)
+├── Dockerfile
+├── requirements.txt
+├── .env
+└── .gitignore
+```
+
+## API Endpoints
+
+All services expose the same endpoints:
+
+- `GET /` - Root endpoint
+- `GET /health` - Health check
+- `GET /docs` - Swagger API documentation
+- `GET /api/questions` - Get assessment questions
+- `POST /api/assess` - Submit assessment answers
+
+## Frontend API Clients
+
+Located in `gamification-next/src/lib/`:
+
+- `appperm-client.ts` - App Permissions
+- `phishing-client.ts` - Phishing Detection
+- `password-client.ts` - Password Security
+- `social-client.ts` - Social Engineering
+- `device-client.ts` - Device Security
+- `unified-assessment-client.ts` - Unified interface for all services
+
+## Environment Variables
+
+### Backend Services (.env in each service)
+```
+HOST=0.0.0.0
+PORT=800X  # Different port for each service
+CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+MONGO_URI=mongodb://localhost:27017/gamification?replicaSet=rs0
+```
+
+### Frontend (.env.local)
+```
+NEXT_PUBLIC_APPPERM_API_URL=http://localhost:8000
+NEXT_PUBLIC_PHISHING_API_URL=http://localhost:8001
+NEXT_PUBLIC_PASSWORD_API_URL=http://localhost:8002
+NEXT_PUBLIC_SOCIAL_API_URL=http://localhost:8003
+NEXT_PUBLIC_DEVICE_API_URL=http://localhost:8004
+DATABASE_URL="file:./dev.db"
+```
+
+## Adding Data to Services
+
+Currently all services have empty data files. To add questions and explanations:
+
+1. Navigate to service's `data/` folder
+2. Edit `answer_sheet_*.json` with questions
+3. Edit `explanation_bank_*.json` with explanations
+4. Restart the service
+
+Example question format:
+```json
+{
+  "questions": [
+    {
+      "questionId": "Q1",
+      "question": "Question text here?",
+      "options": [
+        {
+          "text": "Option A",
+          "marks": 5,
+          "level": "advanced"
+        },
+        {
+          "text": "Option B",
+          "marks": 3,
+          "level": "intermediate"
+        }
+      ]
+    }
+  ]
+}
+```
+
+## MongoDB Collections
+
+The platform uses these MongoDB collections:
+- `appperm_assessments` - App permission assessment results
+- `phishing_assessments` - Phishing detection results
+- `password_assessments` - Password security results
+- `social_assessments` - Social engineering results
+- `device_assessments` - Device security results
+- `users` - User accounts
+- `games` - Game data
+
+## Testing Services
+
+### Check if service is running:
+```powershell
+curl http://localhost:8000/health  # App Permissions
+curl http://localhost:8001/health  # Phishing
+curl http://localhost:8002/health  # Password
+curl http://localhost:8003/health  # Social Engineering
+curl http://localhost:8004/health  # Device Security
+```
+
+### View API documentation:
+- http://localhost:8000/docs - App Permissions
+- http://localhost:8001/docs - Phishing Detection
+- http://localhost:8002/docs - Password Security
+- http://localhost:8003/docs - Social Engineering
+- http://localhost:8004/docs - Device Security
+
+## Docker Commands
+
+```powershell
+# View running containers
+docker ps
+
+# View all containers (including stopped)
+docker ps -a
+
+# View logs for specific service
+docker logs app-permission-service
+docker logs phishing-detection-service
+
+# View logs for all services
+docker-compose logs -f
+
+# Restart a specific service
+docker-compose restart app-permission-service
+
+# Rebuild a specific service
+docker-compose up -d --build app-permission-service
+
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes
+docker-compose down -v
+```
+
+## Troubleshooting
+
+### Service won't start
+1. Check if port is already in use
+2. Check MongoDB is running: `docker ps | grep mongodb`
+3. Check logs: `docker-compose logs service-name`
+
+### MongoDB connection issues
+1. Ensure replica set is initialized: `docker logs mongo-init`
+2. Check MongoDB is healthy: `docker ps` (should show healthy status)
+
+### Frontend can't connect to backend
+1. Verify backend is running: `curl http://localhost:800X/health`
+2. Check CORS settings in backend `.env`
+3. Check environment variables in `gamification-next/.env.local`
+
+## Development Workflow
+
+1. Start all services with Docker Compose
+2. Add data to service data files
+3. Develop frontend to consume services
+4. Test each service endpoint individually
+5. Add ML models when ready (place in `models/` folder)
+
+## Next Steps
+
+1. ✅ Services created
+2. ✅ Docker configuration ready
+3. ✅ Frontend API clients created
+4. ⏳ Add assessment questions to each service
+5. ⏳ Add explanation banks
+6. ⏳ Train and add ML models
+7. ⏳ Update frontend UI to support all categories

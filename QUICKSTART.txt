@@ -1,0 +1,126 @@
+# Quick Start Guide
+
+## Recommended Development Setup
+
+The easiest way to develop is to run backend services in Docker and frontend locally.
+
+### Step 1: Start Backend Services
+
+```powershell
+# Use the startup script (Recommended)
+.\start-services.ps1
+# Then choose option 1
+
+# OR manually with docker-compose
+docker-compose -f docker-compose.dev.yml up --build -d
+```
+
+This starts:
+- MongoDB (port 27017)
+- App Permission Service (port 8000)
+- Phishing Detection Service (port 8001)
+- Password Security Service (port 8002)
+- Social Engineering Service (port 8003)
+- Device Security Service (port 8004)
+
+### Step 2: Start Frontend
+
+```powershell
+cd gamification-next
+pnpm install
+pnpm dev
+```
+
+Frontend will run on http://localhost:3000
+
+### Step 3: Verify Services
+
+Check all services are running:
+```powershell
+curl http://localhost:8000/health
+curl http://localhost:8001/health
+curl http://localhost:8002/health
+curl http://localhost:8003/health
+curl http://localhost:8004/health
+```
+
+Or visit the API docs:
+- http://localhost:8000/docs
+- http://localhost:8001/docs
+- http://localhost:8002/docs
+- http://localhost:8003/docs
+- http://localhost:8004/docs
+
+### Step 4: Stop Services
+
+```powershell
+# Stop backend services
+docker-compose -f docker-compose.dev.yml down
+
+# Stop frontend (Ctrl+C in terminal)
+```
+
+## Alternative: Full Docker Setup
+
+If you want to run everything in Docker (including frontend):
+
+```powershell
+docker-compose up --build -d
+```
+
+Note: Frontend build takes longer this way. Only use for production-like testing.
+
+## Troubleshooting
+
+### Backend service won't start
+```powershell
+# View logs
+docker-compose -f docker-compose.dev.yml logs service-name
+
+# Restart a service
+docker-compose -f docker-compose.dev.yml restart service-name
+
+# Rebuild a service
+docker-compose -f docker-compose.dev.yml up -d --build service-name
+```
+
+### Frontend issues
+```powershell
+# Clear Next.js cache
+cd gamification-next
+Remove-Item -Recurse -Force .next
+
+# Reinstall dependencies
+Remove-Item -Recurse -Force node_modules
+pnpm install
+
+# Regenerate Prisma client
+npx prisma generate
+```
+
+### Port conflicts
+If ports are in use, stop conflicting services or change ports in:
+- Backend: Each service's `.env` file
+- Frontend: `next.config.ts` and `.env.local`
+- Docker: `docker-compose.dev.yml`
+
+### MongoDB issues
+```powershell
+# Check MongoDB status
+docker ps | grep mongodb
+
+# View MongoDB logs
+docker logs cybersec-mongodb
+
+# Restart MongoDB
+docker-compose -f docker-compose.dev.yml restart mongodb mongo-init
+```
+
+## Development Workflow
+
+1. Start backend services: `docker-compose -f docker-compose.dev.yml up -d`
+2. Start frontend: `cd gamification-next && pnpm dev`
+3. Make changes to code (services auto-reload with volumes)
+4. Test at http://localhost:3000
+5. Check API responses at http://localhost:800X/docs
+6. Stop when done: `docker-compose -f docker-compose.dev.yml down`

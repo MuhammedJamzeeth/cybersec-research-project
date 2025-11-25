@@ -1,0 +1,175 @@
+version: "3.8"
+
+services:
+  # MongoDB Service
+  mongodb:
+    image: mongo:7.0
+    container_name: cybersec-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: gamification
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # App Permission Service
+  app-permission-service:
+    build:
+      context: ./app-permission-service
+      dockerfile: Dockerfile
+    container_name: app-permission-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - MONGO_URI=mongodb://mongodb:27017/gamification
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./app-permission-service:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Phishing Detection Service
+  phishing-detection-service:
+    build:
+      context: ./phishing-detection-service
+      dockerfile: Dockerfile
+    container_name: phishing-detection-service
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8001
+      - MONGO_URI=mongodb://mongodb:27017/gamification
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./phishing-detection-service:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Password Security Service
+  password-security-service:
+    build:
+      context: ./password-security-service
+      dockerfile: Dockerfile
+    container_name: password-security-service
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8002
+      - MONGO_URI=mongodb://mongodb:27017/gamification
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./password-security-service:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Social Engineering Service
+  social-engineering-service:
+    build:
+      context: ./social-engineering-service
+      dockerfile: Dockerfile
+    container_name: social-engineering-service
+    restart: unless-stopped
+    ports:
+      - "8003:8003"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8003
+      - MONGO_URI=mongodb://mongodb:27017/gamification
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./social-engineering-service:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Device Security Service
+  device-security-service:
+    build:
+      context: ./device-security-service
+      dockerfile: Dockerfile
+    container_name: device-security-service
+    restart: unless-stopped
+    ports:
+      - "8004:8004"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8004
+      - MONGO_URI=mongodb://mongodb:27017/gamification
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - ./device-security-service:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Next.js Frontend
+  gamification-frontend:
+    build:
+      context: ./gamification-next
+      dockerfile: Dockerfile
+    container_name: gamification-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_APPPERM_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_PHISHING_API_URL=http://localhost:8001
+      - NEXT_PUBLIC_PASSWORD_API_URL=http://localhost:8002
+      - NEXT_PUBLIC_SOCIAL_API_URL=http://localhost:8003
+      - NEXT_PUBLIC_DEVICE_API_URL=http://localhost:8004
+      - DATABASE_URL=file:/app/data/dev.db
+    depends_on:
+      - app-permission-service
+      - phishing-detection-service
+      - password-security-service
+      - social-engineering-service
+      - device-security-service
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  default:
+    name: cybersec-network

@@ -4,7 +4,16 @@ import { prisma } from "@/lib/prisma";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, category, gameSlug, preScore, gameScore, postScore, improvement, completedAt } = body;
+    const {
+      userId,
+      category,
+      gameSlug,
+      preScore,
+      gameScore,
+      postScore,
+      improvement,
+      completedAt,
+    } = body;
 
     // Save game result
     const gameResult = await prisma.gameResult.create({
@@ -22,13 +31,13 @@ export async function POST(request: NextRequest) {
 
     // Update user's total points in assessment (for leaderboard)
     const totalPoints = Math.round((preScore + gameScore + postScore) * 1.5);
-    
+
     // Find or create a "game-progress" assessment entry
     const existingProgress = await prisma.assessment.findFirst({
       where: {
         userId,
-        slug: "game-progress"
-      }
+        slug: "game-progress",
+      },
     });
 
     if (existingProgress) {
@@ -36,25 +45,32 @@ export async function POST(request: NextRequest) {
         where: { id: existingProgress.id },
         data: {
           score: existingProgress.score + totalPoints,
-        }
+        },
       });
     } else {
       await prisma.assessment.create({
         data: {
-          userId,
+          user: {
+            connect: { id: userId },
+          },
           categoryId: "games",
           slug: "game-progress",
           score: totalPoints,
+          percentage: 0,
+          knowledgeLevel: "Gaming",
           answers: [],
-        }
+        },
       });
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      gameResult,
-      pointsEarned: totalPoints 
-    }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        gameResult,
+        pointsEarned: totalPoints,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Save game result error:", error);
     return NextResponse.json(
@@ -78,7 +94,7 @@ export async function GET(request: NextRequest) {
 
     const gameResults = await prisma.gameResult.findMany({
       where: { userId },
-      orderBy: { completedAt: 'desc' },
+      orderBy: { completedAt: "desc" },
     });
 
     return NextResponse.json({ gameResults }, { status: 200 });
