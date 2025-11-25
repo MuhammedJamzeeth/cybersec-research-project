@@ -12,11 +12,24 @@ services:
       MONGO_INITDB_DATABASE: gamification
     volumes:
       - mongodb_data:/data/db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: |
+        mongosh --eval "
+          try {
+            rs.status();
+            db.adminCommand('ping');
+          } catch (err) {
+            rs.initiate({
+              _id: 'rs0',
+              members: [{ _id: 0, host: 'mongodb:27017' }]
+            });
+          }
+        " --quiet
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
+      start_period: 20s
 
   # App Permission Service
   app-permission-service:
@@ -153,6 +166,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - MONGO_URI=mongodb://mongodb:27017/gamification?replicaSet=rs0
       - NEXT_PUBLIC_APPPERM_API_URL=http://localhost:8000
       - NEXT_PUBLIC_PHISHING_API_URL=http://localhost:8001
       - NEXT_PUBLIC_PASSWORD_API_URL=http://localhost:8002
@@ -160,11 +174,18 @@ services:
       - NEXT_PUBLIC_DEVICE_API_URL=http://localhost:8004
       - DATABASE_URL=file:/app/data/dev.db
     depends_on:
-      - app-permission-service
-      - phishing-detection-service
-      - password-security-service
-      - social-engineering-service
-      - device-security-service
+      mongodb:
+        condition: service_healthy
+      app-permission-service:
+        condition: service_started
+      phishing-detection-service:
+        condition: service_started
+      password-security-service:
+        condition: service_started
+      social-engineering-service:
+        condition: service_started
+      device-security-service:
+        condition: service_started
 
 volumes:
   mongodb_data:
