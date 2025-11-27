@@ -152,6 +152,8 @@ class ModelService:
         if question_id.startswith('Q0'):
             normalized_qid = question_id.replace('Q0', 'Q')
         
+        print(f"🔍 [Password] Looking for explanation: Q={normalized_qid}, Option={option}, Gender={gender}, Edu={education}, Prof={proficiency}")
+        
         if proficiency in ['School', 'school']:
             proficiency = 'School'
         elif proficiency in ['High', 'High Education', 'high', 'high education']:
@@ -164,6 +166,7 @@ class ModelService:
                 if (profile.get('gender') == gender and
                     profile.get('education') == education and
                     profile.get('proficiency') == proficiency):
+                    print(f"✅ [Password] Found exact match!")
                     return exp.get('explanation', '')
         
         for exp in self.explanation_bank:
@@ -172,13 +175,16 @@ class ModelService:
                 profile = exp.get('profile', {})
                 if (profile.get('gender') == gender and
                     profile.get('education') == education):
+                    print(f"⚠️ [Password] Found partial match (no proficiency match)")
                     return exp.get('explanation', '')
         
         for exp in self.explanation_bank:
             if (exp.get('questionId') == normalized_qid and 
                 exp.get('option') == option):
+                print(f"⚠️ [Password] Found basic match (question + option only)")
                 return exp.get('explanation', '')
         
+        print(f"❌ [Password] No explanation found for Q={normalized_qid}, Option={option}")
         return f"Consider reviewing your understanding of password security. Focus on best practices."
     
     def get_enhancement_advice(self, question_text: str, level: str) -> str:
