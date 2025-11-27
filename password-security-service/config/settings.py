@@ -29,9 +29,9 @@ class Settings(BaseSettings):
     MONGO_URI: str = "mongodb://localhost:27017/gamification?replicaSet=rs0"
     
     # Model Files
-    MODEL_PATH: str = "models/password_security_model.pkl"
-    SCALER_PATH: str = "models/password_security_scaler.pkl"
-    FEATURE_NAMES_PATH: str = "models/password_security_feature_names.pkl"
+    MODEL_PATH: str = "models/password_model.pkl"
+    SCALER_PATH: str = "models/password_scaler.pkl"
+    FEATURE_NAMES_PATH: str = "models/password_feature_names.pkl"
     
     # Data Files
     ANSWER_SHEET_PATH: str = "data/answer_sheet_password.json"

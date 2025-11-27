@@ -29,9 +29,9 @@ class Settings(BaseSettings):
     MONGO_URI: str = "mongodb://localhost:27017/gamification?replicaSet=rs0"
     
     # Model Files
-    MODEL_PATH: str = "models/social_engineering_model.pkl"
-    SCALER_PATH: str = "models/social_engineering_scaler.pkl"
-    FEATURE_NAMES_PATH: str = "models/social_engineering_feature_names.pkl"
+    MODEL_PATH: str = "models/social_model.pkl"
+    SCALER_PATH: str = "models/social_scaler.pkl"
+    FEATURE_NAMES_PATH: str = "models/social_feature_names.pkl"
     
     # Data Files
     ANSWER_SHEET_PATH: str = "data/answer_sheet_social.json"
