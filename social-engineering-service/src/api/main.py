@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, status, Request
+from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from datetime import datetime
@@ -7,14 +7,10 @@ import os
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
-import logging
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
-
-# Configure logging to suppress harmless client disconnect errors
-logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
 
 from src.api.models import (
     Question, AssessmentSubmission, AssessmentResult,
@@ -43,32 +39,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-# Suppress harmless ASGI errors
-import sys
-if sys.version_info >= (3, 11):
-    # Python 3.11+ uses ExceptionGroup
-    @app.exception_handler(ExceptionGroup)
-    async def exception_group_handler(request: Request, exc: ExceptionGroup):
-        """Handle ExceptionGroup from ASGI middleware"""
-        # Check if it's a client disconnect error
-        for sub_exc in exc.exceptions:
-            if isinstance(sub_exc, RuntimeError) and "Unexpected message received" in str(sub_exc):
-                logging.debug(f"Client disconnected during request processing")
-                return JSONResponse(status_code=200, content={"message": "Request processed"})
-        raise exc
-
-
-# Exception handler for client disconnections
-@app.exception_handler(RuntimeError)
-async def runtime_error_handler(request: Request, exc: RuntimeError):
-    """Handle RuntimeError exceptions, particularly client disconnections"""
-    error_msg = str(exc)
-    if "Unexpected message received" in error_msg or "http.request" in error_msg:
-        logging.debug(f"Client disconnected: {error_msg}")
-        return JSONResponse(status_code=200, content={"message": "Request processed"})
-    raise exc
 
 
 @app.on_event("startup")

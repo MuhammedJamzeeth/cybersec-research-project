@@ -11,7 +11,7 @@ export const assessmentClients = {
   "phishing-detection": "phishingClient",
   "password-security": "passwordClient",
   "social-engineering": "socialClient",
-  "safe-browsing": "deviceClient",
+  "device-security": "deviceClient",
 } as const;
 
 // Get client by category
@@ -21,7 +21,7 @@ export function getClientByCategory(category: string) {
     "phishing-detection": require("./phishing-client").phishingClient,
     "password-security": require("./password-client").passwordClient,
     "social-engineering": require("./social-client").socialClient,
-    "safe-browsing": require("./device-client").deviceClient,
+    "device-security": require("./device-client").deviceClient,
   };
 
   return clientMap[category] || null;
@@ -33,7 +33,7 @@ export type AssessmentCategory =
   | "phishing-detection"
   | "password-security"
   | "social-engineering"
-  | "safe-browsing";
+  | "device-security";
 
 export interface CommonUserProfile {
   email: string;

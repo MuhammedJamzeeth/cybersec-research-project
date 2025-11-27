@@ -19,7 +19,7 @@ export type AssessmentCategory =
   | "phishing-detection"
   | "password-security"
   | "social-engineering"
-  | "safe-browsing";
+  | "device-security";
 
 export interface AssessmentClient {
   getQuestions: () => Promise<any[]>;
@@ -41,7 +41,7 @@ export function getAssessmentClient(
     "phishing-detection": phishingClient as AssessmentClient,
     "password-security": passwordClient as AssessmentClient,
     "social-engineering": socialClient as AssessmentClient,
-    "safe-browsing": deviceClient as AssessmentClient,
+    "device-security": deviceClient as AssessmentClient,
   };
 
   const client = clientMap[category];
@@ -90,7 +90,7 @@ export async function checkAllServicesHealth() {
     "phishing-detection",
     "password-security",
     "social-engineering",
-    "safe-browsing",
+    "device-security",
   ];
 
   const healthChecks = await Promise.allSettled(
@@ -130,7 +130,7 @@ export function getCategoryDisplayName(category: AssessmentCategory): string {
     "phishing-detection": "Phishing Detection",
     "password-security": "Password Security",
     "social-engineering": "Social Engineering",
-    "safe-browsing": "Safe Browsing",
+    "device-security": "Device Security",
   };
 
   return displayNames[category] || category;
@@ -145,7 +145,7 @@ export function getCategoryIcon(category: AssessmentCategory): string {
     "phishing-detection": "🎣",
     "password-security": "🔐",
     "social-engineering": "🎭",
-    "safe-browsing": "🌐",
+    "device-security": "🛡️",
   };
 
   return icons[category] || "📋";
@@ -162,8 +162,7 @@ export function getCategoryDescription(category: AssessmentCategory): string {
     "password-security":
       "Assess your password security practices and knowledge",
     "social-engineering": "Understand social engineering tactics and defenses",
-    "safe-browsing":
-      "Evaluate your safe browsing and online security awareness",
+    "device-security": "Evaluate your device security awareness",
   };
 
   return descriptions[category] || "Assessment";
@@ -178,7 +177,7 @@ export function getAllCategories(): AssessmentCategory[] {
     "phishing-detection",
     "password-security",
     "social-engineering",
-    "safe-browsing",
+    "device-security",
   ];
 }
 
@@ -195,9 +194,8 @@ export function parseCategoryFromSlug(slug: string): AssessmentCategory | null {
     password: "password-security",
     "social-engineering": "social-engineering",
     social: "social-engineering",
-    "safe-browsing": "safe-browsing",
-    browsing: "safe-browsing",
-    device: "safe-browsing",
+    "device-security": "device-security",
+    device: "device-security",
   };
 
   return slugMap[slug] || null;

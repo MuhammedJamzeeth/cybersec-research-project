@@ -296,65 +296,27 @@ class ModelService:
         
         if awareness_level == "Low Awareness":
             recommendations.append(
-                "Your assessment indicates you need to strengthen your safe browsing knowledge. "
-                "Start with basic online safety concepts."
+                "Your assessment indicates you need to strengthen your device security knowledge. "
+                "Start with basic device protection concepts."
             )
             if education in ['O/L', 'A/L']:
-                recommendations.append("Consider taking online courses on safe browsing and internet security.")
+                recommendations.append("Consider taking online courses on device security.")
             else:
-                recommendations.append("Review documentation on safe browsing policies and best practices.")
+                recommendations.append("Review documentation on device security policies and best practices.")
                 
         elif awareness_level == "Moderate Awareness":
             recommendations.append(
                 f"You have a moderate understanding (confidence: {confidence:.1%}). "
-                "Focus on advanced safe browsing techniques."
+                "Focus on advanced device security."
             )
-            recommendations.append("Study VPN usage, secure connections, and browser security settings.")
+            recommendations.append("Study mobile device management and endpoint security.")
             
         elif awareness_level == "High Awareness":
             recommendations.append(
                 f"Excellent! Your awareness is high (confidence: {confidence:.1%}). "
-                "Continue staying updated with latest browsing security practices."
+                "Continue staying updated with latest security practices."
             )
-            recommendations.append("Explore advanced topics like browser hardening and privacy tools.")
-        
-        return recommendations
-    
-    def get_score_based_recommendations(self, percentage: float, user_profile: Dict) -> List[str]:
-        """Generate recommendations based on score when ML model is not available"""
-        recommendations = []
-        
-        education = user_profile.get('education_level', 'Degree')
-        
-        if percentage < 50:
-            recommendations.append(
-                f"Your score of {percentage:.1f}% indicates you need to strengthen your safe browsing knowledge. "
-                "Focus on understanding HTTPS, secure downloads, and recognizing unsafe websites."
-            )
-            recommendations.append("Start with the basics: learn about secure connections, verify links before clicking, and use trusted sources for downloads.")
-            if education in ['O/L', 'A/L', 'School O/L', 'School A/L']:
-                recommendations.append("Consider taking beginner-friendly online courses on internet safety.")
-            
-        elif percentage < 70:
-            recommendations.append(
-                f"Your score of {percentage:.1f}% shows moderate understanding. "
-                "Improve your knowledge of VPNs, browser security, and safe browsing habits."
-            )
-            recommendations.append("Focus on advanced topics like zero-day vulnerabilities, browser cookies, and secure Wi-Fi usage.")
-            
-        elif percentage < 90:
-            recommendations.append(
-                f"Good performance at {percentage:.1f}%! "
-                "Enhance your skills by learning about advanced browser security features and privacy tools."
-            )
-            recommendations.append("Explore browser extensions for security, privacy-focused browsers, and advanced threat detection.")
-            
-        else:
-            recommendations.append(
-                f"Excellent score of {percentage:.1f}%! "
-                "Your safe browsing knowledge is strong. Stay updated with emerging threats and new security features."
-            )
-            recommendations.append("Keep learning about the latest cybersecurity trends, zero-day exploits, and advanced privacy protection techniques.")
+            recommendations.append("Explore advanced topics like zero-trust device security.")
         
         return recommendations
     

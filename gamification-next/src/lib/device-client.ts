@@ -1,7 +1,5 @@
 const API_URL =
-  process.env.NEXT_PUBLIC_SAFEBROWSING_API_URL ||
-  process.env.NEXT_PUBLIC_DEVICE_API_URL ||
-  "http://localhost:8004";
+  process.env.NEXT_PUBLIC_DEVICE_API_URL || "http://localhost:8004";
 
 export interface DeviceQuestion {
   id: string;

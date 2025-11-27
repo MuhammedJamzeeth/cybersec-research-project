@@ -4,14 +4,14 @@
 
 ### 1. Game Recommendations - ✅ FIXED
 
-**Problem:** Game recommendations were only mapped for app-permission categories (location, storage, camera, etc.) and didn't have mappings for phishing, password, social engineering, or safe browsing categories.
+**Problem:** Game recommendations were only mapped for app-permission categories (location, storage, camera, etc.) and didn't have mappings for phishing, password, social engineering, or device security categories.
 
 **Solution:** Updated `gamification-next/src/app/api/recommendations/route.ts` to include game mappings for all service categories:
 
 - **Phishing Detection**: phishing-detective, email-security-challenge
 - **Password Security**: password-fortress, credential-guardian
 - **Social Engineering**: social-engineering-defense, manipulation-awareness, privacy-guardian
-- **Safe Browsing**: device-lockdown, security-settings-master, security-fundamentals
+- **Device Security**: device-lockdown, security-settings-master, security-fundamentals
 
 Now when you take assessments in any category, you'll get accurate game recommendations based on your weak areas.
 
@@ -31,7 +31,7 @@ Now when you take assessments in any category, you'll get accurate game recommen
 - ❌ **phishing-detection-service**: No models (only README.md)
 - ❌ **password-security-service**: No models (only README.md)
 - ❌ **social-engineering-service**: No models (only README.md)
-- ❌ **safe-browsing-service (device-security-service)**: No models (only README.md)
+- ❌ **device-security-service**: No models (only README.md)
 
 **Why ML Section Doesn't Show:**
 The code is working correctly. When a service doesn't have ML models:
