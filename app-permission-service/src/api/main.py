@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from datetime import datetime
@@ -7,6 +7,7 @@ import os
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
+import logging
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -23,6 +24,9 @@ from config.settings import settings
 # Load environment variables
 load_dotenv()
 
+# Configure logging to suppress harmless client disconnect errors
+logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Mobile App Permissions Assessment API",
@@ -31,6 +35,49 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc"
 )
+
+# ASGI middleware to suppress noisy disconnect errors from Starlette/AnyIO
+class SuppressDisconnectMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        try:
+            await self.app(scope, receive, send)
+        except Exception as exc:  # Handle ExceptionGroup/BaseExceptionGroup and common disconnect errors
+            # Python 3.11+ may wrap in (Base)ExceptionGroup
+            try:
+                from asyncio import CancelledError
+            except Exception:  # pragma: no cover
+                CancelledError = tuple()  # type: ignore
+
+            def _is_harmless_disconnect(e: BaseException) -> bool:
+                # Known harmless disconnect/transport errors while sending response
+                msg = str(e)
+                if isinstance(e, (RuntimeError, BrokenPipeError, ConnectionResetError, CancelledError)):
+                    lower = msg.lower()
+                    if (
+                        "unexpected message received" in msg
+                        or "http.request" in msg
+                        or "broken pipe" in lower
+                        or "connection reset" in lower
+                        or "client disconnected" in lower
+                    ):
+                        return True
+
+                if sys.version_info >= (3, 11) and isinstance(e, (ExceptionGroup, BaseExceptionGroup)):
+                    inner = getattr(e, "exceptions", [])
+                    return bool(inner) and all(_is_harmless_disconnect(x) for x in inner)
+                return False
+
+            if _is_harmless_disconnect(exc):
+                logging.debug("Suppressed client disconnect error during response send")
+                return
+            # Not a harmless disconnect, re-raise
+            raise
+
+# Note: We'll wrap the app with this middleware at the end to ensure
+# it is the outermost layer and catches errors from all middlewares.
 
 # Setup Request Logger (Morgan-style) - Add this before CORS
 # Available formats: 'dev', 'combined', 'short', 'detailed'
@@ -45,6 +92,36 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Suppress harmless ASGI errors - Handle ExceptionGroup for Python 3.11+
+if sys.version_info >= (3, 11):
+    @app.exception_handler(ExceptionGroup)
+    async def exception_group_handler(request: Request, exc: ExceptionGroup):
+        """Handle ExceptionGroup from ASGI middleware (Python 3.11+)"""
+        # Check if it's a client disconnect error within the exception group
+        for sub_exc in exc.exceptions:
+            if isinstance(sub_exc, RuntimeError):
+                error_msg = str(sub_exc)
+                if "Unexpected message received" in error_msg or "http.request" in error_msg:
+                    logging.debug(f"Client disconnected during request processing: {error_msg}")
+                    # Don't return response here, just suppress the error
+                    return None
+        raise exc
+
+
+# Exception handler for client disconnections
+@app.exception_handler(RuntimeError)
+async def runtime_error_handler(request: Request, exc: RuntimeError):
+    """Handle RuntimeError exceptions, particularly client disconnections"""
+    error_msg = str(exc)
+    if "Unexpected message received" in error_msg or "http.request" in error_msg:
+        # Client disconnected early - this is normal, just log as debug
+        logging.debug(f"Client disconnected: {error_msg}")
+        # Don't try to send response, connection is already closed
+        return None
+    # For other RuntimeErrors, raise them normally
+    raise exc
 
 
 @app.on_event("startup")
@@ -403,6 +480,10 @@ async def get_statistics():
     Get overall assessment statistics
     
     Returns aggregated statistics from all completed assessments.
+
+# Wrap the FastAPI app with disconnect suppression as the outermost ASGI layer
+app = SuppressDisconnectMiddleware(app)
+
     """
     try:
         import json

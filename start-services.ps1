@@ -41,7 +41,7 @@ switch ($choice) {
         Write-Host "   Phishing Detection API:    http://localhost:8001/docs"
         Write-Host "   Password Security API:     http://localhost:8002/docs"
         Write-Host "   Social Engineering API:    http://localhost:8003/docs"
-        Write-Host "   Device Security API:       http://localhost:8004/docs"
+        Write-Host "   Safe Browsing API:         http://localhost:8004/docs"
         Write-Host "   MongoDB:                   mongodb://localhost:27017"
         Write-Host ""
         Write-Host "🎯 To start the frontend:" -ForegroundColor Cyan
@@ -70,7 +70,7 @@ switch ($choice) {
         Write-Host "   Phishing Detection API:    http://localhost:8001/docs"
         Write-Host "   Password Security API:     http://localhost:8002/docs"
         Write-Host "   Social Engineering API:    http://localhost:8003/docs"
-        Write-Host "   Device Security API:       http://localhost:8004/docs"
+        Write-Host "   Safe Browsing API:         http://localhost:8004/docs"
         Write-Host "   MongoDB:                   mongodb://localhost:27017"
         Write-Host ""
         Write-Host "💡 View logs: docker-compose logs -f" -ForegroundColor Cyan
@@ -108,7 +108,7 @@ switch ($choice) {
         Write-Host "cd social-engineering-service"
         Write-Host "python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8003 --reload"
         Write-Host ""
-        Write-Host "# Device Security Service"
+        Write-Host "# Safe Browsing Service"
         Write-Host "cd device-security-service"
         Write-Host "python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8004 --reload"
         Write-Host ""

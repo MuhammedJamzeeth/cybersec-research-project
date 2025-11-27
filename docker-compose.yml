@@ -89,12 +89,12 @@ services:
       timeout: 10s
       retries: 3
 
-  # Device Security Service
-  device-security-service:
+  # Safe Browsing Service
+  safe-browsing-service:
     build:
       context: ./device-security-service
       dockerfile: Dockerfile
-    container_name: device-security-service
+    container_name: safe-browsing-service
     restart: unless-stopped
     ports:
       - "8004:8004"
@@ -126,7 +126,7 @@ services:
       - NEXT_PUBLIC_PHISHING_API_URL=http://localhost:8001
       - NEXT_PUBLIC_PASSWORD_API_URL=http://localhost:8002
       - NEXT_PUBLIC_SOCIAL_API_URL=http://localhost:8003
-      - NEXT_PUBLIC_DEVICE_API_URL=http://localhost:8004
+      - NEXT_PUBLIC_SAFEBROWSING_API_URL=http://localhost:8004
       - DATABASE_URL=file:/app/data/dev.db
     depends_on:
       app-permission-service:
@@ -137,7 +137,7 @@ services:
         condition: service_started
       social-engineering-service:
         condition: service_started
-      device-security-service:
+      safe-browsing-service:
         condition: service_started
 
 networks:

@@ -12,7 +12,7 @@
 - Phishing Detection: http://localhost:8001/health
 - Password Security: http://localhost:8002/health
 - Social Engineering: http://localhost:8003/health
-- Device Security: http://localhost:8004/health
+- Safe Browsing: http://localhost:8004/health
 
 ### API Documentation (Swagger UI)
 
@@ -20,7 +20,7 @@
 - Phishing Detection: http://localhost:8001/docs
 - Password Security: http://localhost:8002/docs
 - Social Engineering: http://localhost:8003/docs
-- Device Security: http://localhost:8004/docs
+- Safe Browsing: http://localhost:8004/docs
 
 ### API Endpoints
 

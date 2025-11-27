@@ -138,12 +138,12 @@ services:
       timeout: 10s
       retries: 3
 
-  # Device Security Service
-  device-security-service:
+  # Safe Browsing Service
+  safe-browsing-service:
     build:
       context: ./device-security-service
       dockerfile: Dockerfile
-    container_name: device-security-service
+    container_name: safe-browsing-service
     restart: unless-stopped
     ports:
       - "8004:8004"

@@ -34,9 +34,9 @@ const categories: Category[] = [
   },
   {
     id: "5",
-    slug: "device-security",
-    title: "Device Security",
-    description: "Secure your devices and protect your data",
+    slug: "safe-browsing",
+    title: "Safe Browsing",
+    description: "Learn safe browsing habits and protect yourself online",
     icon: "Shield",
   },
 ];

@@ -1,13 +1,18 @@
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from datetime import datetime
 from typing import List
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
+import logging
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+
+# Configure logging to suppress harmless client disconnect errors
+logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
 
 from src.api.models import (
     Question, AssessmentSubmission, AssessmentResult,
@@ -19,8 +24,8 @@ from config.settings import settings
 load_dotenv()
 
 app = FastAPI(
-    title="Device Security Assessment API",
-    description="FastAPI microservice for device security assessment with ML-based scoring and personalized feedback",
+    title="Safe Browsing Assessment API",
+    description="FastAPI microservice for safe browsing assessment with ML-based scoring and personalized feedback",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -35,10 +40,38 @@ app.add_middleware(
 )
 
 
+# Suppress harmless ASGI errors - Handle ExceptionGroup for Python 3.11+
+if sys.version_info >= (3, 11):
+    @app.exception_handler(ExceptionGroup)
+    async def exception_group_handler(request: Request, exc: ExceptionGroup):
+        """Handle ExceptionGroup from ASGI middleware (Python 3.11+)"""
+        # Check if it's a client disconnect error within the exception group
+        for sub_exc in exc.exceptions:
+            if isinstance(sub_exc, RuntimeError):
+                error_msg = str(sub_exc)
+                if "Unexpected message received" in error_msg or "http.request" in error_msg:
+                    logging.debug(f"Client disconnected during request processing: {error_msg}")
+                    # Don't return response here, just suppress the error
+                    return None
+        raise exc
+
+
+# Exception handler for client disconnections
+@app.exception_handler(RuntimeError)
+async def runtime_error_handler(request: Request, exc: RuntimeError):
+    """Handle RuntimeError exceptions, particularly client disconnections"""
+    error_msg = str(exc)
+    if "Unexpected message received" in error_msg or "http.request" in error_msg:
+        logging.debug(f"Client disconnected: {error_msg}")
+        # Don't try to send response, connection is already closed
+        return None
+    raise exc
+
+
 @app.on_event("startup")
 async def startup_event():
     """Load ML model and data on startup"""
-    print("🚀 Starting Device Security Assessment API...")
+    print("🚀 Starting Safe Browsing Assessment API...")
     success = model_service.load_components()
     if not success:
         print("⚠️ Warning: Some components failed to load")
@@ -50,7 +83,7 @@ async def startup_event():
 async def root():
     """Root endpoint"""
     return {
-        "message": "Device Security Assessment API",
+        "message": "Safe Browsing Assessment API",
         "version": "1.0.0",
         "docs": "/docs",
         "health": "/health"
@@ -72,7 +105,7 @@ async def health_check():
 
 @app.get("/api/questions", response_model=List[Question], tags=["Assessment"])
 async def get_questions():
-    """Get all device security assessment questions"""
+    """Get all safe browsing assessment questions"""
     try:
         questions = model_service.get_questions()
         
@@ -164,8 +197,19 @@ async def submit_assessment(submission: AssessmentSubmission):
                     ml_confidence,
                     submission.user_profile.dict()
                 )
+            else:
+                # Provide fallback recommendations based on score when ML is not available
+                ml_recommendations = model_service.get_score_based_recommendations(
+                    percentage,
+                    submission.user_profile.dict()
+                )
         except Exception as e:
             print(f"⚠️ ML prediction failed: {e}")
+            # Provide fallback recommendations
+            ml_recommendations = model_service.get_score_based_recommendations(
+                percentage,
+                submission.user_profile.dict()
+            )
         
         db_record = {
             "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),

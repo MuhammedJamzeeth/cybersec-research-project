@@ -9,7 +9,7 @@ This platform consists of 5 microservices + 1 frontend + 1 database:
 2. **Phishing Detection Service** - Port 8001  
 3. **Password Security Service** - Port 8002
 4. **Social Engineering Service** - Port 8003
-5. **Device Security Service** - Port 8004
+5. **Safe Browsing Service** - Port 8004
 
 ### Frontend (Next.js)
 - **Gamification Frontend** - Port 3000
@@ -126,7 +126,7 @@ Located in `gamification-next/src/lib/`:
 - `phishing-client.ts` - Phishing Detection
 - `password-client.ts` - Password Security
 - `social-client.ts` - Social Engineering
-- `device-client.ts` - Device Security
+- `device-client.ts` - Safe Browsing
 - `unified-assessment-client.ts` - Unified interface for all services
 
 ## Environment Variables

@@ -174,7 +174,7 @@ const GAME_RECOMMENDATIONS: Record<string, GameRecommendation[]> = {
     },
   ],
 
-  // Device Security areas
+  // Safe Browsing areas
   device: [
     {
       gameSlug: "device-lockdown",

@@ -21,7 +21,7 @@ This starts:
 - Phishing Detection Service (port 8001)
 - Password Security Service (port 8002)
 - Social Engineering Service (port 8003)
-- Device Security Service (port 8004)
+- Safe Browsing Service (port 8004)
 
 ### Step 2: Start Frontend
 

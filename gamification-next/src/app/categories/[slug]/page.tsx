@@ -33,7 +33,7 @@ const categoryTitles: Record<string, string> = {
   "safe-browsing": "Safe Browsing",
   "phishing-awareness": "Phishing Awareness",
   "mobile-app-permissions": "Mobile App Permissions",
-  "device-security": "Device Security",
+  "device-security": "Safe Browsing",
 };
 
 // Map slugs to their respective API categories
@@ -42,7 +42,8 @@ const slugToApiCategory: Record<string, string> = {
   "phishing-awareness": "phishing-awareness",
   "password-management": "password-security",
   "social-media-privacy": "social-engineering",
-  "device-security": "device-security",
+  "device-security": "safe-browsing",
+  "safe-browsing": "safe-browsing",
 };
 
 export default function CategoryPage({ params }: CategoryPageProps) {
@@ -92,6 +93,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
           questions = await socialClient.getQuestions();
           break;
         case "device-security":
+        case "safe-browsing":
           questions = await deviceClient.getQuestions();
           break;
         default:
@@ -208,6 +210,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             );
             break;
           case "device-security":
+          case "safe-browsing":
             result = await deviceClient.submitAssessment(
               userProfile,
               userAnswers
@@ -236,6 +239,23 @@ export default function CategoryPage({ params }: CategoryPageProps) {
               return "phishing";
             if (question.includes("social") || question.includes("privacy"))
               return "privacy";
+            // Safe browsing specific keywords
+            if (
+              question.includes("https") ||
+              question.includes("wi-fi") ||
+              question.includes("wifi") ||
+              question.includes("vpn") ||
+              question.includes("browser") ||
+              question.includes("browsing") ||
+              question.includes("cookie") ||
+              question.includes("download") ||
+              question.includes("link") ||
+              question.includes("pop-up") ||
+              question.includes("website") ||
+              question.includes("web address") ||
+              question.includes("zero-day")
+            )
+              return "device";
             if (question.includes("device") || question.includes("security"))
               return "device";
             if (question.includes("permission")) return "permissions";

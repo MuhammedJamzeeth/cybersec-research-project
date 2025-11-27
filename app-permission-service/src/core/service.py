@@ -149,7 +149,10 @@ class ModelService:
         return {'score': 0, 'level': 'wrong'}
     
     def get_explanation(self, question_id: str, option: str, user_profile: Dict) -> str:
-        """Get fully personalized explanation based on user demographics"""
+        """Get fully personalized explanation based on user demographics.
+        Guarantees a non-empty string by skipping empty exp records and using a
+        sensible default when no suitable match is found.
+        """
         # Extract user profile details
         gender = user_profile.get('gender', 'Male')
         education = user_profile.get('education_level', 'Degree')
@@ -173,17 +176,25 @@ class ModelService:
         
         print(f"🔍 Looking for explanation: Q={normalized_qid}, Option={option}, Gender={gender}, Edu={education}, Prof={proficiency}")
         
+        # Helper to extract explanation text safely (non-empty)
+        def _get_text(exp_obj: Dict) -> Optional[str]:
+            text = exp_obj.get('explanation')
+            if isinstance(text, str) and text.strip():
+                return text
+            return None
+
         # Search explanation bank for exact match
         for exp in self.explanation_bank:
             if (exp.get('questionId') == normalized_qid and 
                 exp.get('option') == option):
-                
                 profile = exp.get('profile', {})
                 if (profile.get('gender') == gender and
                     profile.get('education') == education and
                     profile.get('proficiency') == proficiency):
-                    print(f"✅ Found exact match!")
-                    return exp.get('explanation', '')
+                    txt = _get_text(exp)
+                    if txt:
+                        print(f"✅ Found exact match!")
+                        return txt
         
         # Fallback: Try without proficiency match
         for exp in self.explanation_bank:
@@ -192,19 +203,26 @@ class ModelService:
                 profile = exp.get('profile', {})
                 if (profile.get('gender') == gender and
                     profile.get('education') == education):
-                    print(f"⚠️ Found partial match (no proficiency match)")
-                    return exp.get('explanation', '')
+                    txt = _get_text(exp)
+                    if txt:
+                        print(f"⚠️ Found partial match (no proficiency match)")
+                        return txt
         
         # Try just question and option match
         for exp in self.explanation_bank:
             if (exp.get('questionId') == normalized_qid and 
                 exp.get('option') == option):
-                print(f"⚠️ Found basic match (question + option only)")
-                return exp.get('explanation', '')
+                txt = _get_text(exp)
+                if txt:
+                    print(f"⚠️ Found basic match (question + option only)")
+                    return txt
         
         # Final fallback
-        print(f"❌ No explanation found for Q={normalized_qid}, Option={option}")
-        return f"Consider reviewing your understanding of app permissions. Focus on security best practices for mobile applications."
+        print(f"❌ No explanation found or explanation text empty for Q={normalized_qid}, Option={option}")
+        return (
+            "Consider reviewing your understanding of app permissions. "
+            "Focus on why apps request specific permissions and how to grant only what's necessary."
+        )
     
     def get_enhancement_advice(self, question_text: str, level: str) -> str:
         """Get enhancement advice based on performance level"""

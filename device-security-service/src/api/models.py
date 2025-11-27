@@ -25,7 +25,7 @@ class Question(BaseModel):
     id: str
     question: str
     options: List[QuestionOption]
-    category: str = "Device Security"
+    category: str = "Safe Browsing"
 
 
 class UserAnswer(BaseModel):
