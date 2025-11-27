@@ -12,16 +12,14 @@ interface GameRecommendation {
 
 // Game mapping based on weak areas
 const GAME_RECOMMENDATIONS: Record<string, GameRecommendation[]> = {
-  // App Permission areas
-  location: [
+  "location": [
     {
       gameSlug: "privacy-guardian",
       gameName: "Privacy Guardian",
       category: "location",
-      reason:
-        "Practice making decisions about location permissions in real scenarios",
+      reason: "Practice making decisions about location permissions in real scenarios",
       priority: 1,
-      estimatedImpact: "high",
+      estimatedImpact: "high"
     },
     {
       gameSlug: "permission-defender",
@@ -29,17 +27,17 @@ const GAME_RECOMMENDATIONS: Record<string, GameRecommendation[]> = {
       category: "location",
       reason: "Learn to identify and block risky location permission requests",
       priority: 2,
-      estimatedImpact: "medium",
-    },
+      estimatedImpact: "medium"
+    }
   ],
-  storage: [
+  "storage": [
     {
       gameSlug: "data-vault",
       gameName: "Data Vault Challenge",
       category: "storage",
       reason: "Understand storage permissions and data protection strategies",
       priority: 1,
-      estimatedImpact: "high",
+      estimatedImpact: "high"
     },
     {
       gameSlug: "file-guardian",
@@ -47,174 +45,49 @@ const GAME_RECOMMENDATIONS: Record<string, GameRecommendation[]> = {
       category: "storage",
       reason: "Practice securing file access and storage permissions",
       priority: 2,
-      estimatedImpact: "medium",
-    },
+      estimatedImpact: "medium"
+    }
   ],
-  camera: [
+  "camera": [
     {
       gameSlug: "camera-shield",
       gameName: "Camera Shield",
       category: "camera",
       reason: "Learn when and why to grant camera access",
       priority: 1,
-      estimatedImpact: "high",
-    },
+      estimatedImpact: "high"
+    }
   ],
-  contacts: [
+  "contacts": [
     {
       gameSlug: "contact-protector",
       gameName: "Contact Protector",
       category: "contacts",
       reason: "Master protecting your contacts from unauthorized access",
       priority: 1,
-      estimatedImpact: "high",
-    },
+      estimatedImpact: "high"
+    }
   ],
-  microphone: [
+  "microphone": [
     {
       gameSlug: "audio-defender",
       gameName: "Audio Defender",
       category: "microphone",
       reason: "Learn to protect against unauthorized audio recording",
       priority: 1,
-      estimatedImpact: "high",
-    },
+      estimatedImpact: "high"
+    }
   ],
-  permissions: [
+  "general": [
     {
       gameSlug: "permission-master",
       gameName: "Permission Master",
-      category: "permissions",
-      reason: "Comprehensive training on app permission management",
-      priority: 1,
-      estimatedImpact: "high",
-    },
-  ],
-
-  // Phishing Detection areas
-  phishing: [
-    {
-      gameSlug: "phishing-detective",
-      gameName: "Phishing Detective",
-      category: "phishing",
-      reason:
-        "Improve your ability to identify phishing emails and scam attempts",
-      priority: 1,
-      estimatedImpact: "high",
-    },
-    {
-      gameSlug: "email-security-challenge",
-      gameName: "Email Security Challenge",
-      category: "phishing",
-      reason: "Practice spotting suspicious emails and links",
-      priority: 2,
-      estimatedImpact: "high",
-    },
-  ],
-  email: [
-    {
-      gameSlug: "email-security-challenge",
-      gameName: "Email Security Challenge",
-      category: "email",
-      reason: "Master safe email practices and threat detection",
-      priority: 1,
-      estimatedImpact: "high",
-    },
-  ],
-
-  // Password Security areas
-  password: [
-    {
-      gameSlug: "password-fortress",
-      gameName: "Password Fortress",
-      category: "password",
-      reason: "Learn to create and manage strong, secure passwords",
-      priority: 1,
-      estimatedImpact: "high",
-    },
-    {
-      gameSlug: "credential-guardian",
-      gameName: "Credential Guardian",
-      category: "password",
-      reason:
-        "Practice password security best practices and password manager usage",
-      priority: 2,
-      estimatedImpact: "medium",
-    },
-  ],
-
-  // Social Engineering areas
-  social: [
-    {
-      gameSlug: "social-engineering-defense",
-      gameName: "Social Engineering Defense",
-      category: "social",
-      reason: "Recognize and defend against social engineering tactics",
-      priority: 1,
-      estimatedImpact: "high",
-    },
-    {
-      gameSlug: "manipulation-awareness",
-      gameName: "Manipulation Awareness",
-      category: "social",
-      reason: "Learn to identify psychological manipulation techniques",
-      priority: 2,
-      estimatedImpact: "high",
-    },
-  ],
-  privacy: [
-    {
-      gameSlug: "privacy-guardian",
-      gameName: "Privacy Guardian",
-      category: "privacy",
-      reason:
-        "Protect your personal information from social engineering attacks",
-      priority: 1,
-      estimatedImpact: "high",
-    },
-  ],
-
-  // Device Security areas
-  device: [
-    {
-      gameSlug: "device-lockdown",
-      gameName: "Device Lockdown",
-      category: "device",
-      reason: "Secure your devices against unauthorized access and malware",
-      priority: 1,
-      estimatedImpact: "high",
-    },
-    {
-      gameSlug: "security-settings-master",
-      gameName: "Security Settings Master",
-      category: "device",
-      reason: "Configure optimal security settings for your devices",
-      priority: 2,
-      estimatedImpact: "medium",
-    },
-  ],
-  security: [
-    {
-      gameSlug: "security-fundamentals",
-      gameName: "Security Fundamentals",
-      category: "security",
-      reason: "Build a strong foundation in device and network security",
-      priority: 1,
-      estimatedImpact: "high",
-    },
-  ],
-
-  // General fallback
-  general: [
-    {
-      gameSlug: "cybersecurity-essentials",
-      gameName: "Cybersecurity Essentials",
       category: "general",
-      reason: "Comprehensive training across all security domains",
+      reason: "Comprehensive training across all permission types",
       priority: 1,
-      estimatedImpact: "high",
-    },
-  ],
+      estimatedImpact: "high"
+    }
+  ]
 };
 
 /**
@@ -225,7 +98,7 @@ function calculateRecommendations(
   mlRecommendations?: string[]
 ): GameRecommendation[] {
   const recommendations: GameRecommendation[] = [];
-
+  
   // Add games for weak areas
   if (assessment.weakAreas && assessment.weakAreas.length > 0) {
     assessment.weakAreas.forEach((area: string) => {
@@ -233,13 +106,13 @@ function calculateRecommendations(
       recommendations.push(...areaGames);
     });
   }
-
+  
   // Add general recommendations if score is below 70%
   if (assessment.percentage < 70) {
     const generalGames = GAME_RECOMMENDATIONS["general"] || [];
     recommendations.push(...generalGames);
   }
-
+  
   // Incorporate ML recommendations if available
   if (mlRecommendations && mlRecommendations.length > 0) {
     mlRecommendations.forEach((rec, index) => {
@@ -249,17 +122,16 @@ function calculateRecommendations(
         category: "ml-personalized",
         reason: rec,
         priority: 3,
-        estimatedImpact: "personalized",
+        estimatedImpact: "personalized"
       });
     });
   }
-
+  
   // Sort by priority and remove duplicates
-  const uniqueRecs = recommendations.filter(
-    (rec, index, self) =>
-      index === self.findIndex((r) => r.gameSlug === rec.gameSlug)
+  const uniqueRecs = recommendations.filter((rec, index, self) =>
+    index === self.findIndex((r) => r.gameSlug === rec.gameSlug)
   );
-
+  
   return uniqueRecs.sort((a, b) => a.priority - b.priority);
 }
 

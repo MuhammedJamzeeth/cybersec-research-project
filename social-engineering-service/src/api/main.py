@@ -236,7 +236,7 @@ if __name__ == "__main__":
     port = settings.PORT
     
     uvicorn.run(
-        "src.api.main:app",
+        "main:app",
         host=host,
         port=port,
         reload=True,

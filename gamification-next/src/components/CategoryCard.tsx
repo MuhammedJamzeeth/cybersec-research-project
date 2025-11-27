@@ -2,15 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Category } from "@/types";
-import { Lock, Share2, Globe, Mail, Smartphone, Shield } from "lucide-react";
+import { Lock, Share2, Globe, Mail, Smartphone } from "lucide-react";
 
 interface CategoryCardProps {
   category: Category;
@@ -22,13 +16,12 @@ const iconMap = {
   Globe,
   Mail,
   Smartphone,
-  Shield,
 };
 
 export default function CategoryCard({ category }: CategoryCardProps) {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-
+  
   const Icon = iconMap[category.icon as keyof typeof iconMap];
 
   const handleClick = () => {

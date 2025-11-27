@@ -152,8 +152,6 @@ class ModelService:
         if question_id.startswith('Q0'):
             normalized_qid = question_id.replace('Q0', 'Q')
         
-        print(f"🔍 [Social] Looking for explanation: Q={normalized_qid}, Option={option}, Gender={gender}, Edu={education}, Prof={proficiency}")
-        
         if proficiency in ['School', 'school']:
             proficiency = 'School'
         elif proficiency in ['High', 'High Education', 'high', 'high education']:
@@ -166,7 +164,6 @@ class ModelService:
                 if (profile.get('gender') == gender and
                     profile.get('education') == education and
                     profile.get('proficiency') == proficiency):
-                    print(f"✅ [Social] Found exact match!")
                     return exp.get('explanation', '')
         
         for exp in self.explanation_bank:

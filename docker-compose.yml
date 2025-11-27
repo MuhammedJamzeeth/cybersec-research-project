@@ -1,6 +1,36 @@
 version: "3.8"
 
 services:
+  # MongoDB Service
+  mongodb:
+    image: mongo:7.0
+    container_name: cybersec-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: gamification
+    volumes:
+      - mongodb_data:/data/db
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    healthcheck:
+      test: |
+        mongosh --eval "
+          try {
+            rs.status();
+            db.adminCommand('ping');
+          } catch (err) {
+            rs.initiate({
+              _id: 'rs0',
+              members: [{ _id: 0, host: 'mongodb:27017' }]
+            });
+          }
+        " --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
   # App Permission Service
   app-permission-service:
     build:
@@ -13,8 +43,11 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=8000
-      - MONGO_URI=mongodb://host.docker.internal:27017/gamification
+      - MONGO_URI=mongodb://mongodb:27017/gamification
       - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    depends_on:
+      mongodb:
+        condition: service_healthy
     volumes:
       - ./app-permission-service:/app
     healthcheck:
@@ -35,8 +68,11 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=8001
-      - MONGO_URI=mongodb://host.docker.internal:27017/gamification
+      - MONGO_URI=mongodb://mongodb:27017/gamification
       - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    depends_on:
+      mongodb:
+        condition: service_healthy
     volumes:
       - ./phishing-detection-service:/app
     healthcheck:
@@ -57,8 +93,11 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=8002
-      - MONGO_URI=mongodb://host.docker.internal:27017/gamification
+      - MONGO_URI=mongodb://mongodb:27017/gamification
       - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    depends_on:
+      mongodb:
+        condition: service_healthy
     volumes:
       - ./password-security-service:/app
     healthcheck:
@@ -79,8 +118,11 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=8003
-      - MONGO_URI=mongodb://host.docker.internal:27017/gamification
+      - MONGO_URI=mongodb://mongodb:27017/gamification
       - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    depends_on:
+      mongodb:
+        condition: service_healthy
     volumes:
       - ./social-engineering-service:/app
     healthcheck:
@@ -101,8 +143,11 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=8004
-      - MONGO_URI=mongodb://host.docker.internal:27017/gamification
+      - MONGO_URI=mongodb://mongodb:27017/gamification
       - CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+    depends_on:
+      mongodb:
+        condition: service_healthy
     volumes:
       - ./device-security-service:/app
     healthcheck:
@@ -121,7 +166,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - MONGO_URI=mongodb://host.docker.internal:27017/gamification
+      - MONGO_URI=mongodb://mongodb:27017/gamification?replicaSet=rs0
       - NEXT_PUBLIC_APPPERM_API_URL=http://localhost:8000
       - NEXT_PUBLIC_PHISHING_API_URL=http://localhost:8001
       - NEXT_PUBLIC_PASSWORD_API_URL=http://localhost:8002
@@ -129,6 +174,8 @@ services:
       - NEXT_PUBLIC_DEVICE_API_URL=http://localhost:8004
       - DATABASE_URL=file:/app/data/dev.db
     depends_on:
+      mongodb:
+        condition: service_healthy
       app-permission-service:
         condition: service_started
       phishing-detection-service:
@@ -139,6 +186,10 @@ services:
         condition: service_started
       device-security-service:
         condition: service_started
+
+volumes:
+  mongodb_data:
+    driver: local
 
 networks:
   default:
