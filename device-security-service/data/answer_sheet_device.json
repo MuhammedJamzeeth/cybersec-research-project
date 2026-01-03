@@ -1,3 +1,460 @@
 {
-  "questions": []
+  "subcategory": "Device Security",
+  "profiles": {
+    "gender": ["Male", "Female"],
+    "proficiency": ["School", "High Education"],
+    "education": ["O/L", "A/L", "HND", "Degree"]
+  },
+  "questions": [
+    {
+      "questionId": "Q01",
+      "question": "What is the most important security feature on your mobile device?",
+      "options": [
+        {
+          "label": "A",
+          "text": "A strong screen lock (PIN, password, or biometric)",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "B",
+          "text": "A nice wallpaper",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "C",
+          "text": "Antivirus software",
+          "level": "Intermediate",
+          "marks": 5
+        },
+        {
+          "label": "D",
+          "text": "A phone case",
+          "level": "Beginner",
+          "marks": 3
+        }
+      ]
+    },
+    {
+      "questionId": "Q02",
+      "question": "Why should you keep your phone's operating system updated?",
+      "options": [
+        {
+          "label": "A",
+          "text": "To make the phone faster",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "B",
+          "text": "To get new emojis",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "C",
+          "text": "To fix security vulnerabilities and protect against threats",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "D",
+          "text": "To save battery life",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q03",
+      "question": "What should you do if you lose your phone?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Wait and hope someone returns it",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "B",
+          "text": "Buy a new phone immediately",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "C",
+          "text": "Use remote wipe or find my device feature to secure your data",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "D",
+          "text": "Post on social media about it",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q04",
+      "question": "Why is it dangerous to connect to public WiFi without precautions?",
+      "options": [
+        {
+          "label": "A",
+          "text": "It uses your mobile data",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "B",
+          "text": "Hackers can intercept your data on unsecured networks",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "C",
+          "text": "It slows down your phone",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "D",
+          "text": "It drains battery faster",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q05",
+      "question": "What is two-factor authentication (2FA)?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Using two phones at once",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "B",
+          "text": "An extra security layer requiring a second verification method",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "C",
+          "text": "Having two passwords",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "D",
+          "text": "A backup phone number",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q06",
+      "question": "What does encryption on your device do?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Makes your phone run faster",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "B",
+          "text": "Scrambles your data so only authorized users can read it",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "C",
+          "text": "Saves battery power",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "D",
+          "text": "Increases storage space",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q07",
+      "question": "Why should you avoid jailbreaking or rooting your device?",
+      "options": [
+        {
+          "label": "A",
+          "text": "It voids warranty and removes security protections",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "B",
+          "text": "It makes the phone ugly",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "C",
+          "text": "It's illegal everywhere",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "D",
+          "text": "It uses more battery",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q08",
+      "question": "What is the best way to backup your device data?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Write it down on paper",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "B",
+          "text": "Use encrypted cloud storage or secure external storage",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "C",
+          "text": "Email it to yourself",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "D",
+          "text": "Save to an SD card",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q09",
+      "question": "What is a VPN and why would you use it?",
+      "options": [
+        {
+          "label": "A",
+          "text": "A virus protection app",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "B",
+          "text": "A speed booster",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "C",
+          "text": "A virtual private network that encrypts your internet connection",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "D",
+          "text": "A photo editor",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q10",
+      "question": "What should you do before selling or giving away your old device?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Just delete your photos",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "B",
+          "text": "Nothing, the new owner can figure it out",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "C",
+          "text": "Perform a factory reset and remove all accounts",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "D",
+          "text": "Change the wallpaper",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q11",
+      "question": "What is biometric authentication?",
+      "options": [
+        {
+          "label": "A",
+          "text": "A type of password",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "B",
+          "text": "A charger type",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "C",
+          "text": "Using physical characteristics like fingerprints or face for security",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "D",
+          "text": "A backup method",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q12",
+      "question": "Why should you be careful about USB charging stations in public places?",
+      "options": [
+        {
+          "label": "A",
+          "text": "They charge slowly",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "B",
+          "text": "They might be compromised and steal data (juice jacking)",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "C",
+          "text": "They cost money",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "D",
+          "text": "They overheat your phone",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q13",
+      "question": "What is the purpose of Find My Device (Android) or Find My iPhone?",
+      "options": [
+        {
+          "label": "A",
+          "text": "To locate, lock, or wipe your device remotely if lost or stolen",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "B",
+          "text": "To track your friends",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "C",
+          "text": "To find good restaurants",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "D",
+          "text": "To backup photos",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q14",
+      "question": "What is a secure boot process?",
+      "options": [
+        {
+          "label": "A",
+          "text": "Starting your phone quickly",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "B",
+          "text": "A process that verifies software integrity during device startup",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "C",
+          "text": "Turning off your phone safely",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "D",
+          "text": "Restarting to save battery",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    },
+    {
+      "questionId": "Q15",
+      "question": "Why should you review app permissions regularly?",
+      "options": [
+        {
+          "label": "A",
+          "text": "To free up storage space",
+          "level": "Beginner",
+          "marks": 3
+        },
+        {
+          "label": "B",
+          "text": "To ensure apps only have necessary access and protect your privacy",
+          "level": "Advanced",
+          "marks": 10
+        },
+        {
+          "label": "C",
+          "text": "To make apps faster",
+          "level": "Wrong",
+          "marks": 0
+        },
+        {
+          "label": "D",
+          "text": "To organize your home screen",
+          "level": "Intermediate",
+          "marks": 5
+        }
+      ]
+    }
+  ]
 }

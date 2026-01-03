@@ -232,32 +232,64 @@ class ModelService:
     def prepare_features(self, answers: List[Dict], user_profile: Dict) -> Optional[np.ndarray]:
         """Prepare feature vector from user answers for ML model prediction"""
         if not self.feature_names or not self.model:
+            print("⚠️ [ML] Feature names or model not loaded")
             return None
         
         try:
+            # Initialize all features to 0
             features = {feature: 0 for feature in self.feature_names}
+            
+            # The training data uses feature names like Q_0_<option_text>, Q_4_<option_text>, etc.
+            # We need to map question indices to the feature indices used during training
             
             for idx, answer in enumerate(answers):
                 selected_option = answer.get('selected_option', '')
+                
+                # Try different feature name patterns that might match
+                # Pattern 1: Q_{idx}_{option_text} - direct mapping
                 feature_name = f"Q_{idx}_{selected_option}"
                 
                 if feature_name in features:
                     features[feature_name] = 1
+                    print(f"✅ [ML] Matched feature: {feature_name}")
+                else:
+                    # Pattern 2: Search through feature names for matching option text
+                    matched = False
+                    for fn in self.feature_names:
+                        # Check if the feature name ends with the selected option
+                        if fn.endswith(f"_{selected_option}"):
+                            # Only set if not already set (first match wins)
+                            if features[fn] == 0:
+                                features[fn] = 1
+                                matched = True
+                                print(f"✅ [ML] Matched feature by option text: {fn}")
+                                break
+                    
+                    if not matched:
+                        print(f"⚠️ [ML] No match for Q{idx}: '{selected_option[:30]}...'")
+            
+            # Count how many features were set
+            set_count = sum(1 for v in features.values() if v == 1)
+            print(f"📊 [ML] Features set: {set_count}/{len(answers)}")
             
             feature_vector = np.array([features[f] for f in self.feature_names]).reshape(1, -1)
             return feature_vector
             
         except Exception as e:
+            print(f"❌ [ML] Error preparing features: {e}")
             return None
     
     def predict_awareness_level(self, answers: List[Dict], user_profile: Dict) -> Tuple[str, float]:
         """Use ML model to predict user's awareness level"""
         if not self.model or not self.scaler:
+            print("⚠️ [ML] Model or scaler not loaded - cannot predict")
             return "Unknown", 0.0
         
         try:
+            print(f"🔮 [ML] Predicting awareness level for {len(answers)} answers...")
             features = self.prepare_features(answers, user_profile)
             if features is None:
+                print("⚠️ [ML] Feature preparation failed")
                 return "Unknown", 0.0
             
             features_scaled = self.scaler.transform(features)
@@ -265,15 +297,24 @@ class ModelService:
             prediction_proba = self.model.predict_proba(features_scaled)[0]
             confidence = max(prediction_proba)
             
+            print(f"🔮 [ML] Raw prediction: {prediction}, Confidence: {confidence:.2%}")
+            
+            # The model directly predicts awareness levels: "High Awareness", "Moderate Awareness", "Low Awareness"
             if isinstance(prediction, str):
-                awareness_map_str = {
-                    'Beginner': "Low Awareness",
-                    'Basic': "Low Awareness",
-                    'Intermediate': "Moderate Awareness",
-                    'Advanced': "High Awareness",
-                    'Expert': "High Awareness"
-                }
-                awareness_level = awareness_map_str.get(prediction, "Unknown")
+                # Check if prediction is already an awareness level
+                valid_awareness_levels = ["High Awareness", "Moderate Awareness", "Low Awareness"]
+                if prediction in valid_awareness_levels:
+                    awareness_level = prediction
+                else:
+                    # Fallback mapping for other prediction formats
+                    awareness_map_str = {
+                        'Beginner': "Low Awareness",
+                        'Basic': "Low Awareness",
+                        'Intermediate': "Moderate Awareness",
+                        'Advanced': "High Awareness",
+                        'Expert': "High Awareness"
+                    }
+                    awareness_level = awareness_map_str.get(prediction, "Unknown")
             else:
                 awareness_map_num = {
                     0: "Low Awareness",
@@ -282,9 +323,13 @@ class ModelService:
                 }
                 awareness_level = awareness_map_num.get(prediction, "Unknown")
             
+            print(f"✅ [ML] Awareness Level: {awareness_level}")
             return awareness_level, confidence
             
         except Exception as e:
+            print(f"❌ [ML] Prediction error: {e}")
+            import traceback
+            traceback.print_exc()
             return "Unknown", 0.0
     
     def get_ml_based_recommendations(self, awareness_level: str, confidence: float, 
